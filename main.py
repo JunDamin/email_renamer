@@ -27,14 +27,30 @@ def main(page):
     def rename_files(e):
         nonlocal selected_files
         name_pattern = name_controller.name_order
-            
+
+        pb = ft.ProgressBar(width=400)
+
         # 선택된 파일들의 이름을 변경
         for file in selected_files:
-            sender_name, sender_address, date_str, time_str, subject = extract_info_from_eml(file.path)
+            (
+                sender_name,
+                sender_address,
+                date_str,
+                time_str,
+                subject,
+            ) = extract_info_from_eml(file.path)
 
-            info = {"보낸사람": sender_name, "메일주소": sender_address, "일자": date_str.replace("-", ""), "시간": time_str.replace(":", ""), "메일제목":subject, }
+            info = {
+                "보낸사람": sender_name,
+                "메일주소": sender_address,
+                "일자": date_str.replace("-", ""),
+                "시간": time_str.replace(":", ""),
+                "메일제목": subject,
+            }
             filename = "_".join([info.get(pattern) for pattern in name_pattern])
-            rename_file(file.path, prettify_filename(filename) + ".eml", date_str, time_str)
+            rename_file(
+                file.path, prettify_filename(filename) + ".eml", date_str, time_str
+            )
 
             # 초기화
             lv.controls.clear()
@@ -54,29 +70,29 @@ def main(page):
     )
 
     rename_button = ElevatedButton("파일명 변경", on_click=rename_files)
-    
-    lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
 
+    lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
 
     # 페이지에 위젯 추가
     page.add(
-        ft.Container(
-            content=Row(
-                [choose_button, rename_button],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            )
+        Column(
+            [
+                ft.Container(
+                    content=Row(
+                        [choose_button, rename_button],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    )
+                ),
+                ft.Container(
+                    content=Row(
+                        [name_controller],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    )
+                ),
+                ft.Divider(),
+                ft.Container(content=Row([lv], alignment=ft.MainAxisAlignment.CENTER)),
+            ]
         )
-    )
-    page.add(
-        ft.Container(
-            content=Row(
-                [name_controller],
-                alignment=ft.MainAxisAlignment.CENTER,
-            )
-        )
-    )
-    page.add(
-        ft.Container(content=Row([lv], alignment=ft.MainAxisAlignment.CENTER))
     )
 
 

@@ -11,44 +11,32 @@ from flet import (
     colors,
 )
 
-date = {
-    "content": ft.Text("일자"),
-    "width": 200,
-    "height": 50,
-    "bgcolor": colors.BLUE_GREY_100,
-    "border_radius": 5,
-    "alignment": ft.alignment.center,
-}
-
-time = {
-    "content": ft.Text("시간"),
-    "width": 200,
-    "height": 50,
-    "bgcolor": colors.BLUE_GREY_100,
-    "border_radius": 5,
-    "alignment": ft.alignment.center,
-}
-
-sender = {
-    "content": ft.Text("보낸사람"),
-    "width": 200,
-    "height": 50,
-    "bgcolor": colors.BLUE_GREY_100,
-    "border_radius": 5,
-    "alignment": ft.alignment.center,
+initial_setting = {
+    "일자": colors.BLUE_GREY_100,
+    "시간": colors.BLUE_GREY_100,
+    "보낸사람": colors.BLUE_GREY_100,
+    "메일제목": colors.BLUE_GREY_100,
 }
 
 
-title = {
-    "content": ft.Text("메일제목"),
-    "width": 200,
-    "height": 50,
-    "bgcolor": colors.BLUE_GREY_100,
-    "border_radius": 5,
-    "alignment": ft.alignment.center,
-}
+def get_setting(name, bgcolor):
+    return {
+        "content": ft.Text(name),
+        "width": 200,
+        "height": 50,
+        "bgcolor": bgcolor,
+        "border_radius": 5,
+        "alignment": ft.alignment.center,
+    }
 
-example = {"보낸사람": "전다민", "메일주소": "jdm@koica.go.kr", "일자": "20240116", "시간": "091102", "메일제목": "테스트 메일제목"}
+
+example = {
+    "보낸사람": "전다민",
+    "메일주소": "jdm@koica.go.kr",
+    "일자": "20240116",
+    "시간": "091102",
+    "메일제목": "테스트 메일제목",
+}
 
 
 def nameController(page):
@@ -89,32 +77,12 @@ def nameController(page):
         [
             DragTarget(
                 group="eml",
-                content=Container(**sender),
+                content=Container(**get_setting(name, bgcolor)),
                 on_will_accept=drag_will_accept,
                 on_accept=drag_accept,
                 on_leave=drag_leave,
-            ),
-            DragTarget(
-                group="eml",
-                content=Container(**date),
-                on_will_accept=drag_will_accept,
-                on_accept=drag_accept,
-                on_leave=drag_leave,
-            ),
-            DragTarget(
-                group="eml",
-                content=Container(**time),
-                on_will_accept=drag_will_accept,
-                on_accept=drag_accept,
-                on_leave=drag_leave,
-            ),
-            DragTarget(
-                group="eml",
-                content=Container(**title),
-                on_will_accept=drag_will_accept,
-                on_accept=drag_accept,
-                on_leave=drag_leave,
-            ),
+            )
+            for name, bgcolor in initial_setting.items()
         ]
     )
 
@@ -212,7 +180,7 @@ def nameController(page):
         ]
     )
 
-    draggable_name_contorl.name_order = []
+    draggable_name_contorl.name_order = [*initial_setting.keys()]
 
     return draggable_name_contorl
 

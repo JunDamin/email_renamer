@@ -8,12 +8,12 @@ from flet import (
     Row,
 )
 from name_order import nameController
-from functions import extract_info_from_eml
+from functions import extract_info_from_eml, rename_file, prettify_filename
 
 
 def main(page):
     selected_files = []
-    new_prefix_field = nameController(page)
+    name_controller = nameController(page)
 
     def on_files_selected(e: FilePickerResultEvent):
         # 선택된 파일들을 리스트에 저장
@@ -39,9 +39,21 @@ def main(page):
         page.update()
 
     def rename_files(e):
+        nonlocal selected_files
+        name_pattern = name_controller.name_order
+            
         # 선택된 파일들의 이름을 변경
         for file in selected_files:
-            print(extract_info_from_eml(file.path))
+            sender_name, sender_address, date_str, time_str, subject = extract_info_from_eml(file.path)
+
+            info = {"보낸사람": sender_name, "메일주소": sender_address, "일자": date_str.replace("-", ""), "시간": time_str.replace(":", ""), "메일제목":subject, }
+            filename = "_".join([info.get(pattern) for pattern in name_pattern])
+            rename_file(file.path, prettify_filename(filename) + ".eml", date_str, time_str)
+
+            # 초기화
+            data_table.rows = []
+            selected_files = []
+            data_table.update()
 
     # 여러 파일 선택 가능하도록 설정
     pick_files_dialog = FilePicker(on_result=on_files_selected)
@@ -105,7 +117,7 @@ def main(page):
     page.add(
         ft.Container(
             content=Row(
-                [new_prefix_field],
+                [name_controller],
                 alignment=ft.MainAxisAlignment.CENTER,
             )
         )

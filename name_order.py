@@ -17,6 +17,7 @@ date = {
     "height": 50,
     "bgcolor": colors.BLUE_GREY_100,
     "border_radius": 5,
+    "alignment": ft.alignment.center,
 }
 
 time = {
@@ -25,6 +26,7 @@ time = {
     "height": 50,
     "bgcolor": colors.BLUE_GREY_100,
     "border_radius": 5,
+    "alignment": ft.alignment.center,
 }
 
 sender = {
@@ -33,6 +35,7 @@ sender = {
     "height": 50,
     "bgcolor": colors.BLUE_GREY_100,
     "border_radius": 5,
+    "alignment": ft.alignment.center,
 }
 
 
@@ -42,7 +45,10 @@ title = {
     "height": 50,
     "bgcolor": colors.BLUE_GREY_100,
     "border_radius": 5,
+    "alignment": ft.alignment.center,
 }
+
+example = {"보낸사람": "전다민", "메일주소": "jdm@koica.go.kr", "일자": "20240116", "시간": "091102", "메일제목": "테스트 메일제목"}
 
 
 def nameController(page):
@@ -61,7 +67,7 @@ def nameController(page):
         e.control.update()
         filename_display.value = "_".join(
             [
-                f"<{control.content.content.value}>"
+                example.get(control.content.content.value)
                 for control in filename_field.controls
                 if control.content.content and control.content.content.value
             ]
@@ -111,11 +117,11 @@ def nameController(page):
             ),
         ]
     )
-    
+
     filename_display = ft.Text(
         "_".join(
             [
-                f"<{control.content.content.value}>"
+                example.get(control.content.content.value)
                 for control in filename_field.controls
                 if control.content.content and control.content.content.value
             ]
@@ -134,12 +140,7 @@ def nameController(page):
                             height=50,
                             bgcolor=colors.CYAN,
                             border_radius=5,
-                        ),
-                        content_feedback=Container(
-                            width=200,
-                            height=50,
-                            bgcolor=colors.CYAN,
-                            border_radius=3,
+                            alignment=ft.alignment.center,
                         ),
                     ),
                     Draggable(
@@ -150,12 +151,7 @@ def nameController(page):
                             height=50,
                             bgcolor=colors.CYAN,
                             border_radius=5,
-                        ),
-                        content_feedback=Container(
-                            width=200,
-                            height=50,
-                            bgcolor=colors.CYAN,
-                            border_radius=3,
+                            alignment=ft.alignment.center,
                         ),
                     ),
                     Draggable(
@@ -166,6 +162,7 @@ def nameController(page):
                             height=50,
                             bgcolor=colors.YELLOW,
                             border_radius=5,
+                            alignment=ft.alignment.center,
                         ),
                     ),
                     Draggable(
@@ -176,16 +173,18 @@ def nameController(page):
                             height=50,
                             bgcolor=colors.GREEN,
                             border_radius=5,
+                            alignment=ft.alignment.center,
                         ),
                     ),
                     Draggable(
                         group="eml",
                         content=Container(
-                            content=ft.Text("제목"),
+                            content=ft.Text("메일제목"),
                             width=200,
                             height=50,
                             bgcolor=colors.GREEN,
                             border_radius=5,
+                            alignment=ft.alignment.center,
                         ),
                     ),
                     Draggable(
@@ -196,18 +195,24 @@ def nameController(page):
                             height=50,
                             bgcolor=colors.BLUE_GREY_100,
                             border_radius=5,
+                            alignment=ft.alignment.center,
                         ),
                     ),
                 ]
             ),
             Container(width=100),
-            Row([filename_field], alignment=ft.MainAxisAlignment.CENTER),
             Row(
-                [ft.Text("파일명 형식: "), filename_display],
+                [ft.Text("파일명 형식: "), filename_field],
+                alignment=ft.MainAxisAlignment.CENTER,
+            ),
+            Row(
+                [ft.Text("파일명 예시: "), filename_display],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
         ]
     )
+
+    draggable_name_contorl.name_order = []
 
     return draggable_name_contorl
 

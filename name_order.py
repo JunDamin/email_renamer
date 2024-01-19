@@ -177,7 +177,7 @@ def nameController(page):
             Container(
                 content=Row(
                     [
-                        ft.Text("이름 순서: ", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
+                        ft.Text("이름 패턴: ", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
                         *fields.items,
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,

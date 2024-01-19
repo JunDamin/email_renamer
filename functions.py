@@ -50,7 +50,22 @@ def extract_info_from_eml(file_path):
 
 import os
 
-def rename_file(original_path, new_name, date_str, time_str):
+def change_file_time(path, date_str, time_str):
+    
+    # 수정시간 변경
+    new_time = time.mktime(time.strptime(f'{date_str} {time_str}', '%Y-%m-%d %H:%M:%S'))
+    
+    while True:
+        os.utime(path, (new_time, new_time))
+        time.sleep(0.01)
+        mod_time = os.path.getmtime(path)
+        if mod_time == new_time:
+            break
+        time.sleep(0.1)
+    return True
+
+
+def rename_file(original_path, new_name, ):
     # 파일 존재 여부 확인
     if not os.path.exists(original_path):
         return "Error: 원본 파일이 존재하지 않습니다."
@@ -62,15 +77,14 @@ def rename_file(original_path, new_name, date_str, time_str):
     count = 1
     filename, file_extension = os.path.splitext(new_name)
     while os.path.exists(new_path):
-        new_path = os.path.join(folder, f"{filename}_{count}{file_extension}")
+        new_path = os.path.join(folder, f"{filename}_{count}.{file_extension}")
         count += 1
+
+
 
     # 파일 이름 변경
     os.rename(original_path, new_path)
     
-    # 수정시간 변경
-    new_time = time.mktime(time.strptime(f'{date_str} {time_str}', '%Y-%m-%d %H:%M:%S'))
-    os.utime(new_path, (new_time, new_time))
     return f"파일 이름이 '{original_filename}'에서 '{os.path.basename(new_path)}'로 변경되었습니다."
 
 # 사용 예시

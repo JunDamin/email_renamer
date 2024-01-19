@@ -8,7 +8,12 @@ from flet import (
     Row,
 )
 from name_order import nameController
-from functions import extract_info_from_eml, rename_file, prettify_filename
+from functions import (
+    extract_info_from_eml,
+    rename_file,
+    prettify_filename,
+    change_file_time,
+)
 
 
 def main(page):
@@ -28,10 +33,10 @@ def main(page):
         nonlocal selected_files
         name_pattern = name_controller.name_order
 
-        pb = ft.ProgressBar(width=400)
-
+        # page.controls.pop()
+        pb.visible = True
         # 선택된 파일들의 이름을 변경
-        for file in selected_files:
+        for i, file in enumerate(selected_files):
             (
                 sender_name,
                 sender_address,
@@ -47,15 +52,27 @@ def main(page):
                 "시간": time_str.replace(":", ""),
                 "메일제목": subject,
             }
-            filename = "_".join([info.get(pattern) for pattern in name_pattern])
-            rename_file(
-                file.path, prettify_filename(filename) + ".eml", date_str, time_str
-            )
 
-            # 초기화
-            lv.controls.clear()
-            selected_files = []
-            lv.update()
+            change_file_time(file.path, date_str, time_str)
+
+            filename = "_".join(
+                [info.get(pattern) for pattern in name_pattern if pattern]
+            )
+            rename_file(file.path, prettify_filename(filename)[:80] + ".eml")
+
+            progress_text.value = f"{file.name}을 처리중입니다. 기다려 주세요..."
+            progress_bar.value = (i + 1) / len(selected_files)
+            page.update()
+
+        # 초기화
+        # page.controls.pop()
+        page.add(lv)
+        lv.controls.clear()
+        selected_files = []
+        progress_text.value = "처리중입니다. 기다려 주세요..."
+        lv.update()
+        pb.visible = False
+        pb.update()
 
     # 여러 파일 선택 가능하도록 설정
     pick_files_dialog = FilePicker(on_result=on_files_selected)
@@ -68,7 +85,14 @@ def main(page):
             allow_multiple=True, allowed_extensions=["eml"]
         ),
     )
-
+    progress_text = ft.Text("처리중입니다. 기다려 주세요...")
+    progress_bar = ft.ProgressBar(width=400)
+    pb = ft.Container(
+        content=Column(
+            [ft.Text("메일 처리중", theme_style=ft.TextThemeStyle.HEADLINE_SMALL), progress_text, progress_bar]
+        ),
+        visible=False,
+    )
     rename_button = ElevatedButton("파일명 변경", on_click=rename_files)
 
     lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
@@ -89,6 +113,7 @@ def main(page):
                         alignment=ft.MainAxisAlignment.CENTER,
                     )
                 ),
+                pb,
                 ft.Divider(),
                 ft.Container(content=Row([lv], alignment=ft.MainAxisAlignment.CENTER)),
             ]

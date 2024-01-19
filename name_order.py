@@ -23,18 +23,6 @@ initial_setting = {
     key: options_setting.get(key) for key in ["일자", "시간", "보낸사람", "메일제목"]
 }
 
-
-def get_setting(name, bgcolor):
-    return {
-        "content": ft.Text(name),
-        "width": 200,
-        "height": 50,
-        "bgcolor": bgcolor,
-        "border_radius": 5,
-        "alignment": ft.alignment.center,
-    }
-
-
 example = {
     "보낸사람": "전다민",
     "메일주소": "jdm@koica.go.kr",
@@ -53,8 +41,8 @@ class Item(Draggable):
         parent=None,
         drag_will_accept=None,
         drag_leave=None,
-        width=200,
-        height=50,
+        width=70,
+        height=30,
         bgcolor=colors.GREY_100,
         border_radius=10,
         alignment=ft.alignment.center,
@@ -173,29 +161,25 @@ def nameController(page):
             group="eml",
             text=name,
             bgcolor=bgcolor,
+            parent=fields
         )
         for name, bgcolor in options_setting.items()
     ]
 
     draggable_name_contorl = Column(
         [
-            Container(
-                content=Row(
-                    controls=[
-                        ft.Text("메일정보: ", theme_style=ft.TextThemeStyle.HEADLINE_SMALL),
-                    ]
-                    + option_list,
-                ),
-                bgcolor=colors.GREEN_100,
-                padding=10,
-                border_radius=10,
+            Row(
+                [
+                    ft.Text("파일명 예시: ", theme_style=ft.TextThemeStyle.BODY_LARGE),
+                    fields.filename_display,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
             ),
-            Container(width=100),
             Container(
                 content=Row(
                     [
                         ft.Text(
-                            "파일명 형식: ", theme_style=ft.TextThemeStyle.HEADLINE_SMALL
+                            "파일 형식: ", theme_style=ft.TextThemeStyle.BODY_MEDIUM
                         ),
                      *fields.items],
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -204,13 +188,14 @@ def nameController(page):
                 padding=10,
                 border_radius=10,
             ),
-            Row(
-                [
-                    ft.Container(width=50),
-                    ft.Text("파일명 예시: ", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
-                    fields.filename_display,
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
+            Container(width=100),
+            Container(
+                content=Row(
+                    controls=option_list,
+                ),
+                bgcolor=colors.GREEN_100,
+                padding=10,
+                border_radius=10,
             ),
         ]
     )

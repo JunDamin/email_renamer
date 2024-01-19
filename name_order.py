@@ -5,11 +5,11 @@ from flet import (
     Draggable,
     DragTarget,
     DragTargetAcceptEvent,
-    Page,
     Row,
     border,
     colors,
 )
+from copy import deepcopy
 
 initial_setting = {
     "일자": colors.BLUE_GREY_100,
@@ -17,6 +17,9 @@ initial_setting = {
     "보낸사람": colors.BLUE_GREY_100,
     "메일제목": colors.BLUE_GREY_100,
 }
+
+options_setting = deepcopy(initial_setting)
+options_setting["메일주소"] = colors.BLUE_GREY_100
 
 
 def get_setting(name, bgcolor):
@@ -102,59 +105,11 @@ def nameController(page):
                 [
                     Draggable(
                         group="eml",
-                        content=Container(
-                            content=ft.Text("보낸사람"),
-                            width=200,
-                            height=50,
-                            bgcolor=colors.CYAN,
-                            border_radius=5,
-                            alignment=ft.alignment.center,
-                        ),
-                    ),
-                    Draggable(
-                        group="eml",
-                        content=Container(
-                            content=ft.Text("메일주소"),
-                            width=200,
-                            height=50,
-                            bgcolor=colors.CYAN,
-                            border_radius=5,
-                            alignment=ft.alignment.center,
-                        ),
-                    ),
-                    Draggable(
-                        group="eml",
-                        content=Container(
-                            content=ft.Text("일자"),
-                            width=200,
-                            height=50,
-                            bgcolor=colors.YELLOW,
-                            border_radius=5,
-                            alignment=ft.alignment.center,
-                        ),
-                    ),
-                    Draggable(
-                        group="eml",
-                        content=Container(
-                            content=ft.Text("시간"),
-                            width=200,
-                            height=50,
-                            bgcolor=colors.GREEN,
-                            border_radius=5,
-                            alignment=ft.alignment.center,
-                        ),
-                    ),
-                    Draggable(
-                        group="eml",
-                        content=Container(
-                            content=ft.Text("메일제목"),
-                            width=200,
-                            height=50,
-                            bgcolor=colors.GREEN,
-                            border_radius=5,
-                            alignment=ft.alignment.center,
-                        ),
-                    ),
+                        content=Container(**get_setting(name, bgcolor)),
+                    )
+                    for name, bgcolor in options_setting.items()
+                ]
+                + [
                     Draggable(
                         group="eml",
                         content=Container(

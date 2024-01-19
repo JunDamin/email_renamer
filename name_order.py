@@ -11,15 +11,17 @@ from flet import (
 )
 from copy import deepcopy
 
-initial_setting = {
-    "일자": colors.BLUE_GREY_100,
-    "시간": colors.BLUE_GREY_100,
-    "보낸사람": colors.BLUE_GREY_100,
-    "메일제목": colors.BLUE_GREY_100,
+options_setting = {
+    "일자": colors.AMBER_ACCENT_100,
+    "시간": colors.AMBER_100,
+    "보낸사람": colors.BROWN_200,
+    "메일주소": colors.BROWN_100,
+    "메일제목": colors.DEEP_ORANGE_100,
 }
 
-options_setting = deepcopy(initial_setting)
-options_setting["메일주소"] = colors.BLUE_GREY_100
+initial_setting = {
+    key: options_setting.get(key) for key in ["일자", "시간", "보낸사람", "메일제목"]
+}
 
 
 def get_setting(name, bgcolor):
@@ -38,7 +40,7 @@ example = {
     "메일주소": "jdm@koica.go.kr",
     "일자": "20240116",
     "시간": "091102",
-    "메일제목": "테스트 메일제목",
+    "메일제목": "[RE][Re] 이메일 백업 안내",
 }
 
 
@@ -99,37 +101,60 @@ def nameController(page):
         )
     )
 
+    option_list = [
+        Draggable(
+            group="eml",
+            content=Container(**get_setting(name, bgcolor)),
+        )
+        for name, bgcolor in options_setting.items()
+    ] + [
+        Draggable(
+            group="eml",
+            content=Container(
+                content=ft.Text(""),
+                width=200,
+                height=50,
+                bgcolor=colors.BLUE_GREY_100,
+                border_radius=5,
+                alignment=ft.alignment.center,
+            ),
+        ),
+    ]
+
     draggable_name_contorl = Column(
         [
-            Row(
-                [
-                    Draggable(
-                        group="eml",
-                        content=Container(**get_setting(name, bgcolor)),
-                    )
-                    for name, bgcolor in options_setting.items()
-                ]
-                + [
-                    Draggable(
-                        group="eml",
-                        content=Container(
-                            content=ft.Text(""),
-                            width=200,
-                            height=50,
-                            bgcolor=colors.BLUE_GREY_100,
-                            border_radius=5,
-                            alignment=ft.alignment.center,
-                        ),
-                    ),
-                ]
+            Container(
+                content=Row(
+                    controls=[
+                        ft.Text("메일정보: ", theme_style=ft.TextThemeStyle.HEADLINE_SMALL),
+                    ]
+                    + option_list,
+                ),
+                bgcolor=colors.GREEN_100,
+                padding=10,
+                border_radius=10,
             ),
             Container(width=100),
-            Row(
-                [ft.Text("파일명 형식: "), filename_field],
-                alignment=ft.MainAxisAlignment.CENTER,
+            Container(
+                content=Row(
+                    [
+                        ft.Text(
+                            "파일명 형식: ", theme_style=ft.TextThemeStyle.HEADLINE_SMALL
+                        ),
+                        filename_field,
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                bgcolor=colors.BLUE_100,
+                padding=10,
+                border_radius=10,
             ),
             Row(
-                [ft.Text("파일명 예시: "), filename_display],
+                [
+                    ft.Container(width=50),
+                    ft.Text("파일명 예시: ", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
+                    filename_display,
+                ],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
         ]

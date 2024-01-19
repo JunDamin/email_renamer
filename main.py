@@ -89,35 +89,65 @@ def main(page):
     progress_bar = ft.ProgressBar(width=400)
     pb = ft.Container(
         content=Column(
-            [ft.Text("메일 처리중", theme_style=ft.TextThemeStyle.HEADLINE_SMALL), progress_text, progress_bar]
+            [
+                ft.Text("메일 처리중", theme_style=ft.TextThemeStyle.HEADLINE_SMALL),
+                progress_text,
+                progress_bar,
+            ]
         ),
         visible=False,
     )
-    rename_button = ElevatedButton("파일명 변경", on_click=rename_files)
+    rename_button = ft.FilledButton("파일명 변경", on_click=rename_files)
 
     lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
 
+    md_explain = """### 사용설명
+1. 이름을 바꿀 이메일 파일을 받습니다.(편지함관리에서 pc저장 등을 사용하시면 됩니다.) 
+2. 아래 파일 선택 버튼을 누르고 eml 파일을 선택합니다.
+3. 파일명 형식에 위에 있는 후보군을 드롭다운하시면 새로운 파일 형식을 지정할 수 있습니다.
+4. 파일명을 변경 버튼을 클릭하시면 이메일 파일명이 파일명 형식에 따라 변경됩니다.
+    - 이메일 파일의 "수정한 날짜"는 이메일 수신일시로 변경되어 탐색기에서 "수정한 날짜"로 정렬하여 활용이 가능합니다.
+"""
     # 페이지에 위젯 추가
     page.add(
         Column(
             [
                 ft.Container(
-                    content=Row(
+                    content=ft.Row(
+                        [
+                            ft.Image("assets/icon.png", height=30),
+                            ft.Text(
+                                "Email Renamer v.2",
+                                theme_style=ft.TextThemeStyle.TITLE_LARGE,
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    )
+                ),
+                ft.Markdown(
+                    md_explain,
+                    selectable=True,
+                    extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                    on_tap_link=lambda e: page.launch_url(e.data),
+                ),
+                ft.Container(
+                    content=ft.Row(
                         [choose_button, rename_button],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     )
                 ),
+                ft.Divider(),
                 ft.Container(
-                    content=Row(
+                    content=ft.Row(
                         [name_controller],
                         alignment=ft.MainAxisAlignment.CENTER,
                     )
                 ),
                 pb,
                 ft.Divider(),
-                ft.Container(content=Row([lv], alignment=ft.MainAxisAlignment.CENTER)),
             ]
-        )
+        ),
+        lv
     )
 
 

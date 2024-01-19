@@ -6,6 +6,7 @@ from flet import (
     FilePickerResultEvent,
     Column,
     Row,
+    colors,
 )
 from name_order import nameController
 from functions import (
@@ -19,11 +20,14 @@ from functions import (
 def main(page):
     selected_files = []
     name_controller = nameController(page)
+    n_files = 0
 
     def on_files_selected(e: FilePickerResultEvent):
         # 선택된 파일들을 리스트에 저장
         nonlocal selected_files
         selected_files = e.files
+        nonlocal n_files
+        n_files = len(selected_files)
 
         for file in selected_files:
             lv.controls.append(ft.Text(f"{file.name}"))
@@ -32,9 +36,11 @@ def main(page):
 
     def rename_files(e):
         nonlocal selected_files
+        if not selected_files:
+            return 
         name_pattern = name_controller.name_order
-
-        # page.controls.pop()
+        rename_button.disabled = True
+        rename_button.update()
         pb.visible = True
         # 선택된 파일들의 이름을 변경
         for i, file in enumerate(selected_files):
@@ -59,11 +65,16 @@ def main(page):
             filename = "_".join(
                 [info.get(pattern) for pattern in name_pattern if pattern]
             )
+            if filename == "":
+                filename="파일명없음"
             rename_file(file.path, prettify_filename(filename)[:80] + ".eml")
 
             progress_text.value = f"{file.name}을 처리중입니다. 기다려 주세요..."
             progress_bar.value = (i + 1) / len(selected_files)
             page.update()
+
+        result_text.value = f"{n_files}건의 변환을 완료하였습니다."
+        show_result(None)
 
         # 초기화
         # page.controls.pop()
@@ -76,6 +87,80 @@ def main(page):
         lv_divider.update()
         pb.visible = False
         pb.update()
+        rename_button.disabled = False
+        rename_button.update()
+
+
+
+    def show_result(e):
+        result.open = True
+        result.update()
+
+    def close_result(e):
+        result.open = False
+        result.update()
+
+    result_text = ft.Text(value=f"{n_files}건의 변환을 완료하였습니다.")
+    result = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("변환완료"),
+        content=ft.Container(
+            ft.Column(
+                [
+                    result_text,
+                    ft.ElevatedButton("사용설명 닫기", on_click=close_result),
+                ],
+                tight=True,
+                width=500,
+            ),
+            padding=10,
+        ),
+        open=False,
+        adaptive=True,
+    )
+    page.overlay.append(result)
+
+
+    def show_bs(e):
+        bs.open = True
+        bs.update()
+
+    def close_bs(e):
+        bs.open = False
+        bs.update()
+
+    md_explain = """### 사용설명 
+1. 이름을 바꿀 이메일 파일을 받습니다.(편지함관리에서 pc저장 등을 사용하시면 됩니다.)
+2. 아래 파일 선택 버튼을 누르고 eml 파일을 선택합니다.(단, Kdocu에 있는 파일은 작동하지 않습니다.)
+3. 파일명 형식에 위에 있는 후보군을 드롭다운하시면 새로운 파일 형식을 지정할 수 있습니다.
+4. 파일명을 변경 버튼을 클릭하시면 이메일 파일명이 파일명 형식에 따라 변경됩니다.
+    - 이메일 파일의 "수정한 날짜"는 이메일 수신일시로 변경되어 탐색기에서 "수정한 날짜"로 정렬하여 활용이 가능합니다.
+"""
+    bs = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("사용설명"),
+        content=ft.Container(
+            ft.Column(
+                [
+                    ft.Markdown(
+                        md_explain,
+                        selectable=True,
+                        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                        on_tap_link=lambda e: page.launch_url(e.data),
+                    ),
+                    ft.ElevatedButton("사용설명 닫기", on_click=close_bs),
+                ],
+                tight=True,
+                width=500,
+            ),
+            padding=10,
+        ),
+        open=False,
+        adaptive=True,
+    )
+    page.overlay.append(bs)
+
+    bs_button = ft.FilledTonalButton(text="사용설명", on_click=show_bs)
 
     # 여러 파일 선택 가능하도록 설정
     pick_files_dialog = FilePicker(on_result=on_files_selected)
@@ -105,13 +190,11 @@ def main(page):
     lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
     lv_divider = ft.Divider(visible=False)
 
-    md_explain = """### 사용설명 
-1. 이름을 바꿀 이메일 파일을 받습니다.(편지함관리에서 pc저장 등을 사용하시면 됩니다.)
-2. 아래 파일 선택 버튼을 누르고 eml 파일을 선택합니다.(단, Kdocu에 있는 파일은 작동하지 않습니다.)
-3. 파일명 형식에 위에 있는 후보군을 드롭다운하시면 새로운 파일 형식을 지정할 수 있습니다.
-4. 파일명을 변경 버튼을 클릭하시면 이메일 파일명이 파일명 형식에 따라 변경됩니다.
-    - 이메일 파일의 "수정한 날짜"는 이메일 수신일시로 변경되어 탐색기에서 "수정한 날짜"로 정렬하여 활용이 가능합니다.
-"""
+    # windows
+    page.window_max_width = 450
+    page.window_width = 450
+    page.update()
+
     # 페이지에 위젯 추가
     page.add(
         Column(
@@ -126,17 +209,13 @@ def main(page):
                             ),
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
-                    )
-                ),
-                ft.Markdown(
-                    md_explain,
-                    selectable=True,
-                    extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                    on_tap_link=lambda e: page.launch_url(e.data),
+                    ),
+                    padding=20,
+                    bgcolor=colors.GREY_300
                 ),
                 ft.Container(
                     content=ft.Row(
-                        [choose_button, rename_button],
+                        [choose_button, rename_button, bs_button],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     )
                 ),
@@ -151,8 +230,10 @@ def main(page):
                 lv_divider,
             ]
         ),
-        lv
+        lv,
     )
+
+
 
 
 ft.app(target=main)

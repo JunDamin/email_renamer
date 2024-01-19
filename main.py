@@ -27,6 +27,7 @@ def main(page):
 
         for file in selected_files:
             lv.controls.append(ft.Text(f"{file.name}"))
+        lv_divider.visible = True
         page.update()
 
     def rename_files(e):
@@ -71,6 +72,8 @@ def main(page):
         selected_files = []
         progress_text.value = "처리중입니다. 기다려 주세요..."
         lv.update()
+        lv_divider.visible = False
+        lv_divider.update()
         pb.visible = False
         pb.update()
 
@@ -100,10 +103,11 @@ def main(page):
     rename_button = ft.FilledButton("파일명 변경", on_click=rename_files)
 
     lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
+    lv_divider = ft.Divider(visible=False)
 
     md_explain = """### 사용설명
 1. 이름을 바꿀 이메일 파일을 받습니다.(편지함관리에서 pc저장 등을 사용하시면 됩니다.) 
-2. 아래 파일 선택 버튼을 누르고 eml 파일을 선택합니다.
+2. 아래 파일 선택 버튼을 누르고 eml 파일을 선택합니다.(단, Kdocu에 있는 파일은 작동하지 않습니다.)
 3. 파일명 형식에 위에 있는 후보군을 드롭다운하시면 새로운 파일 형식을 지정할 수 있습니다.
 4. 파일명을 변경 버튼을 클릭하시면 이메일 파일명이 파일명 형식에 따라 변경됩니다.
     - 이메일 파일의 "수정한 날짜"는 이메일 수신일시로 변경되어 탐색기에서 "수정한 날짜"로 정렬하여 활용이 가능합니다.
@@ -144,7 +148,7 @@ def main(page):
                     )
                 ),
                 pb,
-                ft.Divider(),
+                lv_divider,
             ]
         ),
         lv

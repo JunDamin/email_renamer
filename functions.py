@@ -41,11 +41,48 @@ def extract_info_from_eml(file_path):
 
     return sender_name, sender_address, date_str, time_str, subject
 
-# 사용 예시
-# eml_file_path = r'C:\Users\freed\Downloads\[FWD]업데이트 오류에 대한 조치 방법입니다..eml'  # EML 파일 경로
-# info = extract_info_from_eml(eml_file_path)
-# print(f"보낸 사람: {info[0]}, 보낸 일자: {info[1]}, 보낸 시간: {info[2]}, 제목: {info[3]}")
+import re
 
+def prettify_filename(name):
+    result = re.sub(r"[!\"\$\&\'\*\+\,/:;<=>\?\\^_`{|}~\n]", "_", name)
+    return re.sub(r" +", r" ", result)
+
+
+# %%
+import email
+from email import policy
+
+def read_eml(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return email.message_from_file(f, policy=policy.default)
+
+def compare_eml(file1, file2):
+
+    if not os.path.exists(file1):
+        return False 
+    if not os.path.exists(file2):
+        return False
+
+    # EML 파일 읽기
+    eml1 = read_eml(file1)
+    eml2 = read_eml(file2)
+
+    # 헤더와 본문 분리 및 비교
+    headers1 = dict(eml1.items())
+    headers2 = dict(eml2.items())
+
+    # 헤더와 본문 비교
+    headers_equal = headers1 == headers2
+
+    return headers_equal
+
+# %%
+def delete_file(file_path):
+    try:
+        os.remove(file_path)
+        print(f"File {file_path} has been deleted.")
+    except OSError as e:
+        print(f"Error: {e.strerror}")
 # %%
 
 import os
@@ -76,26 +113,27 @@ def rename_file(original_path, new_name, ):
     # 새 파일 이름 중복 여부 확인 및 카운트 적용
     count = 1
     filename, file_extension = os.path.splitext(new_name)
+
+    
+    if compare_eml(original_path, new_path):
+        delete_file(original_path)
+        print(original_path)
+        return f"동일한 파일이 있습니다."
+    
+    # count up
     while os.path.exists(new_path):
-        new_path = os.path.join(folder, f"{filename}_{count}.{file_extension}")
+        new_path = os.path.join(folder, f"{filename} ({count}).{file_extension}")
         count += 1
-
-
 
     # 파일 이름 변경
     os.rename(original_path, new_path)
     
     return f"파일 이름이 '{original_filename}'에서 '{os.path.basename(new_path)}'로 변경되었습니다."
 
-# 사용 예시
-# original_file_path =  r'C:\Users\freed\Downloads\test.eml'  # EML 파일 경로
-# new_file_name = 'test.eml'   # 새 파일 이름
-# result = rename_file(original_file_path, new_file_name, "2022-01-01", "12:12:12")
-# print(result)
+
+path = r"C:\Users\freed\Downloads\받은편지함 (2)\파일명없음 - 복사본.eml"
+new_name = "파일명없음.eml"
+
+rename_file(path, new_name)
 
 # %%
-import re
-
-def prettify_filename(name):
-    result = re.sub(r"[!\"\$\&\'\*\+\,/:;<=>\?\\^_`{|}~\n]", "_", name)
-    return re.sub(r" +", r" ", result)

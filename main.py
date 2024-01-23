@@ -27,8 +27,13 @@ def main(page):
         nonlocal selected_files
         selected_files = e.files
         nonlocal n_files
-        n_files = len(selected_files)
 
+        if not selected_files:
+            page.update()
+            return None
+        
+
+        n_files = len(selected_files)
         for file in selected_files:
             lv.controls.append(ft.Text(f"{file.name}"))
         lv_divider.visible = True
@@ -65,11 +70,12 @@ def main(page):
             filename = "_".join(
                 [info.get(pattern) for pattern in name_pattern if pattern]
             )
-            if filename == "":
+            if filename == "": 
                 filename="파일명없음"
+
             rename_file(file.path, prettify_filename(filename)[:80] + ".eml")
 
-            progress_text.value = f"{file.name}을 처리중입니다. 기다려 주세요..."
+            progress_text.value = f"{file.name}을 처리중입니다. 기다려 주세요... "
             progress_bar.value = (i + 1) / len(selected_files)
             page.update()
 
@@ -108,7 +114,7 @@ def main(page):
             ft.Column(
                 [
                     result_text,
-                    ft.ElevatedButton("사용설명 닫기", on_click=close_result),
+                    ft.ElevatedButton("닫기", on_click=close_result),
                 ],
                 tight=True,
                 width=500,

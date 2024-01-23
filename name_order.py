@@ -51,33 +51,38 @@ class Item(Draggable):
         self._content_text = text
         self.parent = parent
         self._color = bgcolor
-        self.content = DragTarget(
+        self.self_container = Container(
+            content=ft.Text(text),
+            width=width,
+            height=height,
+            bgcolor=self.color,
+            border_radius=border_radius,
+            alignment=alignment,
+        )
+        # set draggable
+        self.self_drag_target = DragTarget(
             self,
             group=group,
-            content=Container(
-                content=ft.Text(text),
-                width=width,
-                height=height,
-                bgcolor=self.color,
-                border_radius=border_radius,
-                alignment=alignment,
-            ),
+            content=self.self_container,
             on_will_accept=drag_will_accept,
             on_accept=self.drag_accept,
             on_leave=drag_leave,
         )
-        self.content.parent = self
+        self.self_drag_target.parent = self
+        # set content
+        self.self_content_feedback = Container(
+            width=width,
+            height=height,
+            bgcolor=bgcolor,
+            border_radius=border_radius,
+            content=ft.Text(text, theme_style=ft.TextThemeStyle.BODY_MEDIUM),
+            alignment=ft.alignment.center,
+        )
+        # init 
         super().__init__(
-            content=self.content,
+            content=self.self_drag_target,
             group=group,
-            content_feedback=Container(
-                width=width,
-                height=height,
-                bgcolor=bgcolor,
-                border_radius=border_radius,
-                content=ft.Text(text, theme_style=ft.TextThemeStyle.BODY_MEDIUM),
-                alignment=ft.alignment.center
-            ),
+            content_feedback=self.self_content_feedback,
         )
 
     @property
@@ -87,7 +92,8 @@ class Item(Draggable):
     @content_text.setter
     def content_text(self, text):
         self._content_text = text
-        self.content.content.content = ft.Text(text)
+        self.self_container.content = ft.Text(text, theme_style=ft.TextThemeStyle.BODY_MEDIUM)
+        self.self_content_feedback.content = ft.Text(text, theme_style=ft.TextThemeStyle.BODY_MEDIUM)
 
     @property
     def color(self):
@@ -96,7 +102,8 @@ class Item(Draggable):
     @color.setter
     def color(self, bgcolor):
         self._color = bgcolor
-        self.content.content.bgcolor = bgcolor
+        self.self_container.bgcolor = bgcolor
+        self.self_content_feedback.bgcolor = bgcolor
 
     def drag_accept(self, e: DragTargetAcceptEvent):
         e.control.content.border = None
@@ -158,7 +165,6 @@ def nameController(page):
         )
         for _ in range(4)
     ]
-
 
     option_list = [
         Item(page, group="eml", text=name, bgcolor=bgcolor, parent=fields)

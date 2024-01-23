@@ -104,10 +104,10 @@ def change_file_time(path, date_str, time_str):
     return True
 
 
-def rename_file(original_path, new_name, ):
+def rename_file(original_path, new_name):
     # 파일 존재 여부 확인
     if not os.path.exists(original_path):
-        return "Error: 원본 파일이 존재하지 않습니다."
+        return "NOT_EXIST"
 
     folder, original_filename = os.path.split(original_path)
     new_path = os.path.join(folder, new_name)
@@ -119,22 +119,17 @@ def rename_file(original_path, new_name, ):
     
     if compare_eml(original_path, new_path):
         delete_file(original_path)
-        return f"동일한 파일이 있습니다."
+        return f"DUPLICATES"
     
     # count up
     while os.path.exists(new_path):
-        new_path = os.path.join(folder, f"{filename} ({count}).{file_extension}")
+        new_path = os.path.join(folder, f"{filename} ({count}){file_extension}")
         count += 1
 
     # 파일 이름 변경
     os.rename(original_path, new_path)
     
-    return f"파일 이름이 '{original_filename}'에서 '{os.path.basename(new_path)}'로 변경되었습니다."
+    return f"SUCCESS"
 
-
-path = r"C:\Users\freed\Downloads\받은편지함 (2)\파일명없음 - 복사본.eml"
-new_name = "파일명없음.eml"
-
-rename_file(path, new_name)
 
 # %%

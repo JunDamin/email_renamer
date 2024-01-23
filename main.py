@@ -15,6 +15,7 @@ from functions import (
     prettify_filename,
     change_file_time,
 )
+import os
 
 
 def main(page):
@@ -31,7 +32,6 @@ def main(page):
         if not selected_files:
             page.update()
             return None
-        
 
         n_files = len(selected_files)
         for file in selected_files:
@@ -42,13 +42,21 @@ def main(page):
     def rename_files(e):
         nonlocal selected_files
         if not selected_files:
-            return 
+            return
+        error_list = []
         name_pattern = name_controller.name_order
         rename_button.disabled = True
         rename_button.update()
         pb.visible = True
+
+        status = {"SUCCESS": 0, "NOT_EXIST": 0, "DUPLICATES": 0}
         # 선택된 파일들의 이름을 변경
         for i, file in enumerate(selected_files):
+            if not os.path.exists(file.path):
+                error_list.append(file.path)
+                status["NOT_EXIST"] += 1
+                continue
+
             (
                 sender_name,
                 sender_address,
@@ -70,16 +78,35 @@ def main(page):
             filename = "_".join(
                 [info.get(pattern) for pattern in name_pattern if pattern]
             )
-            if filename == "": 
-                filename="파일명없음"
+            if filename == "":
+                filename = "파일명없음"
 
-            rename_file(file.path, prettify_filename(filename)[:80] + ".eml")
+            res = rename_file(file.path, prettify_filename(filename)[:80] + ".eml")
+
+            status[res] += 1
 
             progress_text.value = f"{file.name}을 처리중입니다. 기다려 주세요... "
             progress_bar.value = (i + 1) / len(selected_files)
             page.update()
 
-        result_text.value = f"{n_files}건의 변환을 완료하였습니다."
+        result_text.value = (
+            f"""{status.get('SUCCESS')}건의 변환을 완료하였습니다.
+        """
+            + (
+                f"\n{status.get('DUPLICATES')}개 중복 파일이 있었습니다."
+                if status.get("DUPLICATES")
+                else ""
+            )
+            + (
+                (
+                    f"\n하기의 {status.get('NOT_EXIST')}개의 파일은 찾을 수 없었습니다.\n"
+                    + "\n".join(f"1. {path}" for path in error_list)
+                )
+                if error_list
+                else ""
+            )
+        )
+
         show_result(None)
 
         # 초기화
@@ -96,8 +123,6 @@ def main(page):
         rename_button.disabled = False
         rename_button.update()
 
-
-
     def show_result(e):
         result.open = True
         result.update()
@@ -106,7 +131,11 @@ def main(page):
         result.open = False
         result.update()
 
-    result_text = ft.Text(value=f"{n_files}건의 변환을 완료하였습니다.")
+    result_text = ft.Markdown(
+        value=f"{n_files}건의 변환을 완료하였습니다.",
+        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+        selectable=True,
+    )
     result = ft.AlertDialog(
         modal=True,
         title=ft.Text("변환완료"),
@@ -125,7 +154,6 @@ def main(page):
         adaptive=True,
     )
     page.overlay.append(result)
-
 
     def show_bs(e):
         bs.open = True
@@ -217,7 +245,7 @@ def main(page):
                         alignment=ft.MainAxisAlignment.CENTER,
                     ),
                     padding=20,
-                    bgcolor=colors.GREY_300
+                    bgcolor=colors.GREY_300,
                 ),
                 ft.Container(
                     content=ft.Row(
@@ -238,8 +266,6 @@ def main(page):
         ),
         lv,
     )
-
-
 
 
 ft.app(target=main)

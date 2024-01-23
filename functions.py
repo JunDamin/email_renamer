@@ -58,6 +58,8 @@ def read_eml(file_path):
 
 def compare_eml(file1, file2):
 
+    if file1 == file2:
+        return False
     if not os.path.exists(file1):
         return False 
     if not os.path.exists(file2):
@@ -117,7 +119,6 @@ def rename_file(original_path, new_name, ):
     
     if compare_eml(original_path, new_path):
         delete_file(original_path)
-        print(original_path)
         return f"동일한 파일이 있습니다."
     
     # count up
